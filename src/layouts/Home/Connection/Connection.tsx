@@ -3,20 +3,37 @@ import { ethers } from "ethers";
 import Web3 from "web3";
 
 export const Connection = () => {
-  let web3;
+  let web3: any;
   const [userAccount, setUserAccount] = useState<string | null>(null);
   const [userBalance, setUserBalance] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   web3 = new Web3(
-  //     new Web3.providers.HttpProvider(
-  //       "https://mainnet.infura.io/v3/f59b7c7975ac426096964b62b486bcf3"
-  //     )
-  //   );
-  // }, []);
+  useEffect(() => {
+    web3 = new Web3(
+      Web3.givenProvider ||
+        "https://mainnet.infura.io/v3/f59b7c7975ac426096964b62b486bcf3"
+    );
+  }, []);
 
-  const getBlock = () => {};
+  const getBlock = async () => {
+    const block = await web3.eth.getBlock("latest");
+    const number = block.number;
+
+    if (block !== null && block.transactions !== null) {
+      for (let txHash of block.transactions) {
+        let tx = await web3.eth.getTransaction(txHash);
+        console.log(tx);
+        if (userAccount === tx.to) {
+          console.log("Transaction found on block: " + number);
+          console.log({
+            from: tx.from,
+            to: tx.to,
+            value: web3.utils.fromWei(tx.value, "ether"),
+          });
+        }
+      }
+    }
+  };
 
   const onConnect = () => {
     if (window.ethereum) {
@@ -26,6 +43,7 @@ export const Connection = () => {
         .then((account: Array<string>) => {
           setUserAccount(account[0]);
           getBalance(account[0]);
+          getBlock();
         });
     } else {
       setErrorMessage("Install metamask in your browser");
