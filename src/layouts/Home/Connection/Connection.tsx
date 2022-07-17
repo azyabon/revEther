@@ -45,6 +45,8 @@ export const Connection = () => {
           getBalance(account[0]);
           getBlock();
         });
+      window.ethereum.on("accountsChanged", onConnect);
+      window.ethereum.on("chainChanged", chainChangedHandler);
     } else {
       setErrorMessage("Install metamask in your browser");
     }
@@ -61,10 +63,6 @@ export const Connection = () => {
   const chainChangedHandler = () => {
     window.location.reload();
   };
-
-  window.ethereum.on("accountsChanged", onConnect);
-
-  window.ethereum.on("chainChanged", chainChangedHandler);
 
   return (
     <>
