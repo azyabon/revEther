@@ -1,6 +1,7 @@
 import * as S from "./FirstScreen.styled";
+import { FC } from "react";
 
-export const FirstScreen = () => {
+export const FirstScreen: FC = () => {
   return (
     <S.FirstScreen>
       <S.Description>
