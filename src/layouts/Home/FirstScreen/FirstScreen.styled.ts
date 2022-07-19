@@ -8,10 +8,13 @@ export const FirstScreen = styled.section`
 `;
 export const Description = styled.section`
   position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 32%;
+  width: 33rem;
   text-shadow: 2.5px 1px 0 #00dcff;
   text-align: center;
   h1 {
