@@ -1,38 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ethers } from "ethers";
 import Web3 from "web3";
+import * as S from "./Connection.styled";
+import Button from "../../../components/Button/Button";
 
 export const Connection = () => {
-  let web3: any;
   const [userAccount, setUserAccount] = useState<string | null>(null);
-  const [userBalance, setUserBalance] = useState<string | null>(null);
+  const [userBalance, setUserBalance] = useState<string>("0");
+  // const [blockNumber, setBlockNumber] = useState<number | null>(null);
+  // const [transactions, setTransactions] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    web3 = new Web3(
-      Web3.givenProvider ||
-        "https://mainnet.infura.io/v3/f59b7c7975ac426096964b62b486bcf3"
+  const getTransactionFromLatestBlock = async () => {
+    const web3 = new Web3(
+      new Web3.providers.HttpProvider(
+        "https://rinkeby.infura.io/v3/b2d6134db76c47b591d49ab7c66733d5"
+      )
     );
-  }, []);
-
-  const getBlock = async () => {
-    const block = await web3.eth.getBlock("latest");
-    const number = block.number;
-
-    if (block !== null && block.transactions !== null) {
-      for (let txHash of block.transactions) {
-        let tx = await web3.eth.getTransaction(txHash);
-        console.log(tx);
-        if (userAccount === tx.to) {
-          console.log("Transaction found on block: " + number);
-          console.log({
-            from: tx.from,
-            to: tx.to,
-            value: web3.utils.fromWei(tx.value, "ether"),
-          });
-        }
-      }
-    }
+    const block = await web3.eth.getBlock("latest", true);
+    const blockNumber = block.number;
+    const transactions = block.transactions.filter((transaction) => {
+      return (
+        transaction.to?.toLowerCase() === userAccount?.toLowerCase() ||
+        transaction.from?.toLowerCase() === userAccount?.toLowerCase()
+      );
+    });
+    console.log(transactions);
   };
 
   const onConnect = () => {
@@ -43,7 +36,6 @@ export const Connection = () => {
         .then((account: Array<string>) => {
           setUserAccount(account[0]);
           getBalance(account[0]);
-          getBlock();
         });
       window.ethereum.on("accountsChanged", onConnect);
       window.ethereum.on("chainChanged", chainChangedHandler);
@@ -67,32 +59,33 @@ export const Connection = () => {
   return (
     <>
       {userAccount ? (
-        <section
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "400px",
-            margin: "auto",
-          }}
-        >
-          <div>You were connected</div>
-          <div>YOUR ADDRESS: {userAccount}</div>
-          <div>YOUR BALANCE: {userBalance}</div>
-        </section>
+        <S.Connected>
+          <h2>You were connected</h2>
+          <div>YOUR ADDRESS: {userAccount} </div>
+          <div>
+            YOUR BALANCE:{" "}
+            <img
+              src="./eth.png"
+              alt="eth"
+              width={20}
+              height={20}
+              style={{ marginRight: "0.5rem" }}
+            />
+            {userBalance}
+          </div>
+          <button onClick={getTransactionFromLatestBlock}>get blocks</button>
+        </S.Connected>
       ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            width: "400px",
-            margin: "auto",
-          }}
-        >
-          <button onClick={() => onConnect()}>
+        <S.Connection>
+          <S.Description>
+            Click the button to connect your wallet to the site. After that,
+            information about your wallet will be displayed on the screen:
+          </S.Description>
+          <Button onClick={() => onConnect()}>
             CONNECT YOUR METAMASK WALLET
-          </button>
-          <span>{errorMessage}</span>
-        </div>
+          </Button>
+          <S.Error style={{ marginTop: "1rem" }}>{errorMessage}</S.Error>
+        </S.Connection>
       )}
     </>
   );

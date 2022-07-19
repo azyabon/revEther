@@ -20,16 +20,28 @@ export const EthereumInfo: FC = () => {
     return <h1>LOADING...</h1>;
   }
 
-  //TODO:resolve_trouble_with_render_elements
   return (
     <S.EthereumInfo>
       <h2>Ethereum info</h2>
       <S.EthereumData>
-        <ul>
-          <li>Price: ${Math.round(ethereum.quote.USD.price)}</li>
-          <li>Market Cap: ${Math.round(ethereum.quote.USD.market_cap)}</li>
-          <li>Volume(24h): ${Math.round(ethereum.quote.USD.volume_24h)}</li>
-        </ul>
+        {ethereum.quote ? (
+          <ul>
+            <li>
+              Price:
+              <span>${Math.round(ethereum.quote.USD.price)}</span>
+            </li>
+            <li>
+              Market Cap:
+              <span>${Math.round(ethereum.quote.USD.market_cap)}</span>
+            </li>
+            <li>
+              Volume(24h):
+              <span>${Math.round(ethereum.quote.USD.volume_24h)}</span>
+            </li>
+          </ul>
+        ) : (
+          <div>no data about ethereum</div>
+        )}
       </S.EthereumData>
       <S.EthereumGraph>Graphic coming soon...</S.EthereumGraph>
     </S.EthereumInfo>
