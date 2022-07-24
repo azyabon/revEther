@@ -40,10 +40,18 @@ export const EthereumInfo: FC = () => {
             </li>
           </ul>
         ) : (
-          <div>no data about ethereum</div>
+          <div style={{ lineHeight: "2rem" }}>
+            In order to see information about ethereum you need to install the
+            extension:
+            <a href="https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc">
+              https://chrome.google.com/webstore/detail/moesif-origin-cors-change/digfbfaphojjndkpccljibejjbppifbc
+            </a>
+            <br />
+            (don't forget to turn it on)
+          </div>
         )}
       </S.EthereumData>
-      <S.EthereumGraph>Graphic coming soon...</S.EthereumGraph>
+      {/*<S.EthereumGraph>Graphic coming soon...</S.EthereumGraph>*/}
     </S.EthereumInfo>
   );
 };
