@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import Web3 from "web3";
 import * as S from "./Connection.styled";
@@ -7,8 +7,8 @@ import Button from "../../../components/Button/Button";
 export const Connection = () => {
   const [userAccount, setUserAccount] = useState<string | null>(null);
   const [userBalance, setUserBalance] = useState<string>("0");
-  // const [blockNumber, setBlockNumber] = useState<number | null>(null);
-  // const [transactions, setTransactions] = useState<any[]>([]);
+  const [blockNumber, setBlockNumber] = useState<number | null>(null);
+  const [transactions, setTransactions] = useState<any[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const getTransactionFromLatestBlock = async () => {
@@ -18,14 +18,14 @@ export const Connection = () => {
       )
     );
     const block = await web3.eth.getBlock("latest", true);
-    const blockNumber = block.number;
-    const transactions = block.transactions.filter((transaction) => {
-      return (
-        transaction.to?.toLowerCase() === userAccount?.toLowerCase() ||
-        transaction.from?.toLowerCase() === userAccount?.toLowerCase()
-      );
-    });
-    console.log(transactions);
+    setTransactions(
+      block.transactions.map((transaction) => {
+        transaction.value = web3.utils.fromWei(transaction.value);
+        return transaction;
+      })
+    );
+    setBlockNumber(block.number);
+    console.log(block.transactions);
   };
 
   const onConnect = () => {
@@ -73,7 +73,27 @@ export const Connection = () => {
             />
             {userBalance}
           </div>
-          <button onClick={getTransactionFromLatestBlock}>get blocks</button>
+          <Button
+            style={{ marginTop: "2rem" }}
+            onClick={getTransactionFromLatestBlock}
+          >
+            Get information about transactions from latest block
+          </Button>
+          <S.Transactions>
+            {transactions.length === 0
+              ? "no transactions"
+              : transactions.map<any>((transaction) => {
+                  return (
+                    <S.Transaction key={transaction.transactionId}>
+                      <h2>Block number: {transaction.blockNumber}</h2>
+                      <span>from: {transaction.from}</span>
+                      <span>to: {transaction.to}</span>
+                      <span>gas: {transaction.gas}</span>
+                      <span>value: {transaction.value}</span>
+                    </S.Transaction>
+                  );
+                })}
+          </S.Transactions>
         </S.Connected>
       ) : (
         <S.Connection>
